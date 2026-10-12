@@ -34,6 +34,7 @@ def ask_grades(prompt: str) -> list[int | None]:
     if raw == "":
         return []
 
+
     parts = raw.split()
     grades: list[int | None] = []
     for p in parts:
@@ -188,25 +189,50 @@ MENU = """
 
 def main() -> None:
     """Главный цикл приложения."""
+    import json
+    from pathlib import Path
+
+    base = Path(__file__).resolve().parent.parent
+    session_path = base / "data" / "session.json"
+
     students: list[Student] = []
+
+    def save_session() -> None:
+
+        try:
+            data = [
+                {"id": s.id, "name": s.name, "grades": s.grades}
+                for s in students
+            ]
+            session_path.write_text(
+                json.dumps(data, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except OSError as e:
+            print(f"Не удалось сохранить состояние: {e}")
+
+    save_session()
 
     while True:
         print(MENU)
         choice = input("Выбор: ").strip()
-
         try:
             if choice == "1":
                 students = action_load(students)
+                save_session()
             elif choice == "2":
                 action_save(students)
             elif choice == "3":
                 action_show(students)
             elif choice == "4":
                 action_add(students)
+                save_session()
             elif choice == "5":
                 action_remove(students)
+                save_session()
             elif choice == "6":
                 action_update(students)
+                save_session()
             elif choice == "7":
                 action_stats(students)
             elif choice == "8":
@@ -223,7 +249,6 @@ def main() -> None:
         except KeyboardInterrupt:
             print("\nПрервано пользователем")
             break
-
 
 if __name__ == "__main__":
     main()
