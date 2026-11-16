@@ -188,7 +188,6 @@ MENU = """
 
 
 def main() -> None:
-    """Главный цикл приложения."""
     import json
     from pathlib import Path
 
